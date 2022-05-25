@@ -33,6 +33,7 @@ async function run() {
     // Data collections
     const toolsCollection = client.db('cordlessTools').collection('tools');
     const userCollection = client.db('cordlessTools').collection('users');
+    const orderCollection = client.db('cordlessTools').collection('orders');
 
     // Store all tools
     app.get('/tool', async (req, res) => {
@@ -47,7 +48,7 @@ async function run() {
       const purchase = await toolsCollection.findOne(query);
       res.send(purchase);
     });
-    // Get all sign up users
+    // Post all users from signup form
     app.post('/user/:email', async (req, res) => {
       const email = req.params.email;
       const user = req.body;
@@ -58,6 +59,19 @@ async function run() {
       const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '5h'})
       res.send({result, token});
     });
+    // Get users
+    app.get('/user/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({email: email});
+      res.send(user); 
+    })
+    // Post order
+    app.post('/order', verifyJWT, async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
+      res.send(result);
+    })
+
     
   }
   finally {
