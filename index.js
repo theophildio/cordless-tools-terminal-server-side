@@ -37,7 +37,7 @@ async function run() {
     // Store all tools
     app.get('/tool', async (req, res) => {
       const query = {};
-      const tools = await (await toolsCollection.find(query).toArray()).reverse();
+      const tools = (await toolsCollection.find(query).toArray()).reverse();
       res.send(tools);
     });
     // Get tool by ID
@@ -46,6 +46,17 @@ async function run() {
       const query = {_id: ObjectId(id)};
       const purchase = await toolsCollection.findOne(query);
       res.send(purchase);
+    });
+    // Get all sign up users
+    app.post('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = {email: email};
+      const options = {upsert: true};
+      const updateDoc = {$set: user};
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '5h'})
+      res.send({result, token});
     });
     
   }
