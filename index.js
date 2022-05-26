@@ -35,6 +35,18 @@ async function run() {
     const userCollection = client.db('cordlessTools').collection('users');
     const orderCollection = client.db('cordlessTools').collection('orders');
 
+    // Verify Admin role
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollection.findOne({ email: requester });
+      if (requesterAccount.role === 'admin') {
+        next();
+      }
+      else{
+        res.status(403).send({message: 'forbidden'});
+      }
+    }
+
     // Store all tools
     app.get('/tool', async (req, res) => {
       const query = {};
@@ -83,6 +95,23 @@ async function run() {
       else {
         return res.status(403).send({message: '403 Forbidden access'});
       }
+    });
+    // Make admin
+    app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: 'admin' },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+    // Get admin 
+    app.get('/admin/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const users = await userCollection.findOne({email: email});
+      const isAdmin = users.role === 'admin';
+      res.send({admin: isAdmin});
     });
 
     
