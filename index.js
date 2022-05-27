@@ -82,13 +82,18 @@ async function run() {
       const order = req.body;
       const result = await orderCollection.insertOne(order);
       res.send(result);
-    })
-    // Get order data
+    });
+    // Get all orders
     app.get('/order', verifyJWT, async (req, res) => {
+      const orders = (await orderCollection.find().toArray()).reverse();
+      res.send(orders);
+    });
+    // Get order data by user
+    app.get('/user-order', verifyJWT, async (req, res) => {
       const user = req.query.user;
       const decodedEmail = req.decoded.email;
       if(user === decodedEmail) {
-        const query = {email: user};
+        const query = {orderedEmail: user};
         const orders = (await orderCollection.find(query).toArray()).reverse();
         return res.send(orders);
       }
@@ -96,6 +101,13 @@ async function run() {
         return res.status(403).send({message: '403 Forbidden access'});
       }
     });
+    // Delete order
+    app.delete('/order/:email', verifyJWT, async(req, res) => {
+      const email = req.params.orderedEmail;
+      const filter = {email: email}
+      const result = await orderCollection.deleteOne(filter);
+      res.send(result);
+    })
     // Make admin
     app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
