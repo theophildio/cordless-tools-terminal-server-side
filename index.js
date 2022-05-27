@@ -34,6 +34,7 @@ async function run() {
     const toolsCollection = client.db('cordlessTools').collection('tools');
     const userCollection = client.db('cordlessTools').collection('users');
     const orderCollection = client.db('cordlessTools').collection('orders');
+    const reviewCollection = client.db('cordlessTools').collection('reviews');
 
     // Verify Admin role
     const verifyAdmin = async (req, res, next) => {
@@ -103,11 +104,22 @@ async function run() {
     });
     // Delete order
     app.delete('/order/:email', verifyJWT, async(req, res) => {
-      const email = req.params.orderedEmail;
+      const email = req.params.email;
       const filter = {email: email}
       const result = await orderCollection.deleteOne(filter);
       res.send(result);
-    })
+    });
+    // Post review
+    app.post('/review', verifyJWT, async (req, res) => {
+      const reviews = req.body;
+      const result = await reviewCollection.insertOne(reviews);
+      res.send(result);
+    });
+    // Get all reviews
+    app.get('/review', verifyJWT, async (req, res) => {
+      const reviews = (await reviewCollection.find().toArray()).reverse();
+      res.send(reviews);
+    });
     // Make admin
     app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
