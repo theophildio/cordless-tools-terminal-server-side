@@ -61,6 +61,16 @@ async function run() {
       const purchase = await toolsCollection.findOne(query);
       res.send(purchase);
     });
+    // Update tool
+    app.put('/tool/:id', verifyJWT, verifyAdmin, async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: ObjectId(id)};
+      const options = {upsert: true};
+      const updateDoc = {$set: updateTool};
+      const result = await toolsCollection.updateOne(filter, updateDoc, options);
+      const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '5h'})
+      res.send({result, token});
+    });
     // Post all users from signup form
     app.post('/user/:email', async (req, res) => {
       const email = req.params.email;
@@ -146,7 +156,7 @@ async function run() {
     app.get('/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
       const users = await userCollection.findOne({email: email});
-      const isAdmin = users.role === 'admin';
+      const isAdmin = users?.role === 'admin';
       res.send({admin: isAdmin});
     });
 
