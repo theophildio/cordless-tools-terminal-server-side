@@ -86,9 +86,10 @@ async function run() {
     // Get users
     app.get('/user/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
-      const user = await userCollection.findOne({email: email});
-      res.send(user); 
-    })
+      const query = {email: email}
+      const users = await userCollection.findOne(query);
+      res.send(users); 
+    });
     // Post order
     app.post('/order', verifyJWT, async (req, res) => {
       const order = req.body;
@@ -127,7 +128,7 @@ async function run() {
       res.send(result);
     });
     // Get all reviews
-    app.get('/review', verifyJWT, async (req, res) => {
+    app.get('/review', async (req, res) => {
       const reviews = (await reviewCollection.find().toArray()).reverse();
       res.send(reviews);
     });
