@@ -71,6 +71,16 @@ async function run() {
       const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '5h'})
       res.send({result, token});
     });
+    // Add new Tool
+		app.post('/tool/additem', verifyJWT, verifyAdmin, async (req, res) => {
+			const email = req.body;
+			const addTool = req.body;
+			const filter = {email: email};
+			const options = {upsert: true};
+			const updateDoc = {$set: addTool};
+			const result = await toolsCollection.updateOne(filter, updateDoc, options);
+			res.send(result);
+		});
     // Post all users from signup form
     app.post('/user/:email', async (req, res) => {
       const email = req.params.email;
