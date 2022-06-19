@@ -62,7 +62,7 @@ async function run() {
       res.send(purchase);
     });
     // Update tool
-    app.put('/tool/:id', verifyJWT, verifyAdmin, async(req, res) => {
+    app.put('/tool/:id', verifyJWT, async(req, res) => {
       const id = req.params.id;
       const filter = {_id: ObjectId(id)};
       const updateTool = req.body;
@@ -72,7 +72,7 @@ async function run() {
       res.send(result);
     });
     // Add new Tool
-		app.post('/tool/additem', verifyJWT, verifyAdmin, async (req, res) => {
+		app.post('/tool/additem', verifyJWT, async (req, res) => {
 			const addTool = req.body;
 			const options = {upsert: true};
 			const updateDoc = {$set: addTool};
