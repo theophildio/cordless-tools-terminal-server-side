@@ -75,9 +75,10 @@ async function run() {
 		app.post('/tool/additem', verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
 			const addTool = req.body;
+      const filter = {email: email};
 			const options = {upsert: true};
 			const updateDoc = {$set: addTool};
-			const result = await toolsCollection.updateOne(updateDoc, options);
+			const result = await toolsCollection.updateOne(filter, updateDoc, options);
 			const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '5h'})
       res.send({result, token});
 		});
