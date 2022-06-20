@@ -72,15 +72,10 @@ async function run() {
       res.send(result);
     });
     // Add new Tool
-		app.post('/tool/additem', verifyJWT, verifyAdmin, async (req, res) => {
-      const email = req.params.email;
+		app.post('/tool', verifyJWT, verifyAdmin, async (req, res) => {
 			const addTool = req.body;
-      const filter = {email: email};
-			const options = {upsert: true};
-			const updateDoc = {$set: addTool};
-			const result = await toolsCollection.updateOne(filter, updateDoc, options);
-			const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '5h'})
-      res.send({result, token});
+			const result = await toolsCollection.updateOne(addTool);
+      res.send(result);
 		});
     // Delete tool 
     app.delete('/tool/:id', verifyJWT, async (req, res) => {
