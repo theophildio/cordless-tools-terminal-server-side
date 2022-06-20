@@ -74,7 +74,7 @@ async function run() {
     // Add new Tool
 		app.post('/tool', verifyJWT, verifyAdmin, async (req, res) => {
 			const addTool = req.body;
-			const result = await toolsCollection.updateOne(addTool);
+			const result = await toolsCollection.insertOne(addTool);
       res.send(result);
 		});
     // Delete tool 
